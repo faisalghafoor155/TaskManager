@@ -1,135 +1,141 @@
 /** @format */
 
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import NavBar from "./Compnonents/NavBar/NavBar";
-import SideBar from "./Compnonents/SideBar/SideBar";
-import Docs from "./Compnonents/SideBar/Docs";
-import Home from "./Compnonents/SideBar/Home";
-import Profile from "./Compnonents/SideBar/Profile";
-import Signout from "./Compnonents/FormPages/Signout";
-import SignIn from "./Compnonents/FormPages/SignIn";
-import Login from "./Compnonents/FormPages/Login";
-import Inbox from "./Compnonents/Inbox/Inbox";
-import { FaInbox } from "react-icons/fa";
-import { useState } from "react";
-import Dashboard from "./Compnonents/SideBar/Dashboard";
-import Clip from "./Compnonents/SideBar/Clip";
-import Timesheet from "./Compnonents/SideBar/Timesheet";
+import { Transition } from "@headlessui/react";
+import { Fragment, useRef } from "react";
+import { IoMdClose } from "react-icons/io";
+import { useDispatch, useSelector } from "react-redux";
+import { Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
+import { Toaster } from "sonner";
+import SideBar from "./SideBar/SideBar";
+import Navbar from "./NavBar/NavBar";
+// import { Dashboard, Login, TaskDetail, Tasks, Trash, Users } from "./pages";
+import { setOpenSidebar } from "./redux/slices/authSlice";
+import Dashboard from "./DashBoard/Dashboard";
+import inbox from "./Inbox/Inbox";
+import Home from "./SideBar/Home";
+import Register from "./pages/Register";
+import Login from "./pages/Login";
+import Clip from "./SideBar/Clip";
+import Timesheets from "./SideBar/Timesheet";
+// import ImportantComponent from "./Inbox/Inbox";
+// import OtherComponent from "./Compnonents/Inbox/Inbox";
+import Tasks from "./pages/Tasks";
+import Charts from "./pages/ChartComponent";
+import ChartComponent from "./pages/ChartComponent";
+import Inbox from "./Inbox/Inbox";
+import Chats from "./Chats/Chats";
+function Layout() {
+  const { user } = useSelector((state) => state.auth);
+  const location = useLocation();
 
-function App() {
-  const [quote, setQuote] = useState(
-    "In the middle of every difficulty lies opportunity.",
-  );
-  const quotes = [
-    "In the middle of every difficulty lies opportunity ,  _Albert Einstein",
-    "The only way to do great work is to love what you do.    _Steve Jobs",
-    "Success is not final, failure is not fatal: It is the courage to continue that counts.   _ Winston Churchill",
-    "Be yourself; everyone else is already taken.   _Oscar Wilde",
-    "The only limit to our realization of tomorrow is our doubts of today.    _Franklin D. Roosevelt",
-  ];
-
-  // eslint-disable-next-line react/prop-types
-  const CardComponent = ({ icon, title, message, quote, handleCard }) => {
-    return (
-      <div className="flex flex-col justify-center items-center h-full w-full bg-white gap-2 mt-8">
-        {icon}
-        <h2 className="text-xl font-semibold mt-4">{title}</h2>
-        <p className="text-gray-400 mt-4">{message}</p>
-        <button
-          className=" text-gray-400 font-bold px-2 p-1 border rounded-xl mt-12"
-          onClick={handleCard}
-        >
-          Motivational Quote
-        </button>
-        <h3 className="font-bold mt-8">{quote}</h3>.
-        <button
-          className=" text-gray-400 font-bold px-2 p-1 border rounded-xl "
-          onClick={handleCard}
-        >
-          Learn more
-        </button>
+  return user ? (
+    <div className="w-full h-screen flex flex-col md:flex-row">
+      <div className="w-1/5 h-screen bg-white dark:bg-[#1f1f1f] sticky top-0 hidden md:block">
+        <SideBar />
       </div>
-    );
-  };
 
-  function handleQuote() {
-    const random = quotes[Math.floor(Math.random() * quotes.length)];
-    setQuote(random);
-  }
+      <MobileSidebar />
 
-  return (
-    <div className="h-full max-w-1440 bg-white flex flex-col">
-      <BrowserRouter>
-        <NavBar />
-        <div className="flex gap-4 h-full bg-white">
-          <SideBar />
-          <div className="flex justify-between w-full">
-            <Routes>
-              <Route path="home" element={<Home />} />
-              <Route path="inbox" element={<Inbox />}>
-                <Route
-                  path="important"
-                  element={
-                    <CardComponent
-                      icon={<FaInbox size={50} className="text-blue-200" />}
-                      title="Inbox Zero"
-                      message="Congratulations! You cleared your important notifications 🎉"
-                      quote={quote}
-                      handleCard={handleQuote}
-                    />
-                  }
-                />
-                <Route
-                  path="other"
-                  element={
-                    <CardComponent
-                      icon={<FaInbox size={50} className="text-blue-200" />}
-                      title="Inbox Zero"
-                      message="Congratulations! You cleared your important notifications 🎉"
-                      quote={quote}
-                      handleCard={handleQuote}
-                    />
-                  }
-                />
-                <Route
-                  path="snoozed"
-                  element={
-                    <CardComponent
-                      icon={<FaInbox size={50} className="text-blue-200" />}
-                      title="Inbox Zero"
-                      message="Congratulations! You cleared your important notifications 🎉"
-                      quote={quote}
-                      handleCard={handleQuote}
-                    />
-                  }
-                />
-                <Route
-                  path="Cleared"
-                  element={
-                    <CardComponent
-                      icon={<FaInbox size={50} className="text-blue-200" />}
-                      title="You don't have any Cleared notifications"
-                      message="Learn how to clear in inbox"
-                      quote={quote}
-                      handleCard={handleQuote}
-                    />
-                  }
-                />
-              </Route>
-              <Route path="docs" element={<Docs />} />
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="clip" element={<Clip />} />
-              <Route path="time" element={<Timesheet />} />
-              <Route path="profile" element={<Profile />} />
-              <Route path="signout" element={<Signout />} />
-              <Route path="signin" element={<SignIn />} />
-              <Route path="login" element={<Login />} />
-            </Routes>
-          </div>
+      <div className="flex-1 overflow-y-auto">
+        <div className="p-4 2xl:px-10">
+          <Outlet />
         </div>
-      </BrowserRouter>
+      </div>
     </div>
+  ) : (
+    <Navigate to="/login" state={{ from: location }} replace />
   );
 }
+
+const MobileSidebar = () => {
+  const { isSidebarOpen } = useSelector((state) => state.auth);
+  const mobileMenuRef = useRef(null);
+  const dispatch = useDispatch();
+
+  const closeSidebar = () => {
+    dispatch(setOpenSidebar(false));
+  };
+
+  return (
+    <>
+      <Transition
+        show={isSidebarOpen}
+        as={Fragment}
+        enter="transition-opacity duration-700"
+        enterFrom="opacity-x-10"
+        enterTo="opacity-x-100"
+        leave="transition-opacity duration-700"
+        leaveFrom="opacity-x-100"
+        leaveTo="opacity-x-0"
+      >
+        {(ref) => (
+          <div
+            ref={(node) => (mobileMenuRef.current = node)}
+            className={`md:hidden w-full h-full bg-black/40 transition-transform duration-700 transform
+             ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
+            onClick={() => closeSidebar()}
+          >
+            <div className="bg-white w-3/4 h-full">
+              <div className="w-full flex justify-end px-5 pt-5">
+                <button
+                  onClick={() => closeSidebar()}
+                  className="flex justify-end items-end"
+                >
+                  <IoMdClose size={25} />
+                </button>
+              </div>
+
+              <div className="-mt-10">
+                <SideBar />
+              </div>
+            </div>
+          </div>
+        )}
+      </Transition>
+    </>
+  );
+};
+
+const App = () => {
+  const theme = "light";
+
+  return (
+    <main className={theme}>
+      <div className="w-full min-h-screen bg-[#f3f4f6] dark:bg-[#0d0d0df4]">
+        <Navbar />
+        <Routes>
+          <Route element={<Layout />}>
+            <Route index psth="/" element={<Navigate to="/Dashboard" />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/chart" element={<ChartComponent />} />
+            <Route path="/tasks" element={<Tasks />} />
+            <Route path="/chats" element={<Chats />} />
+            {/* <Route path="important" element={<ImportantComponent />} />
+              <Route path="other" element={<OtherComponent />} /> */}
+            {/* <Route path="snoozed" element={<SnoozedComponent />} />
+              <Route path="cleared" element={<ClearedComponent />} /> */}
+            <Route path="/home" element={<Home />} />
+            {/* <Route path="/dashboard" element={<Dashboard />} /> */}
+            <Route path="/inbox" element={<Inbox />} />
+            <Route path="/clip" element={<Clip />} />
+            <Route path="/time" element={<Timesheets />} />
+            {/* <Route path="/tasks" element={<Tasks />} />
+            <Route path="/completed/:status?" element={<Tasks />} />
+            <Route path="/in-progress/:status?" element={<Tasks />} />
+            <Route path="/todo/:status?" element={<Tasks />} />
+            <Route path="/trashed" element={<Trash />} />
+            <Route path="/task/:id" element={<TaskDetail />} />
+            <Route path="/team" element={<Users />} /> */}
+          </Route>
+
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+        </Routes>
+      </div>
+
+      <Toaster richColors position="top-center" />
+    </main>
+  );
+};
 
 export default App;
